@@ -11,7 +11,7 @@ bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
-button = KeyboardButton(text='Рассчитать калории')
+button = KeyboardButton(text='Рассчитать')
 button2 = KeyboardButton(text='Информация')
 button3 = KeyboardButton(text='Купить')
 kb.row(button, button2, button3)
@@ -41,10 +41,13 @@ async def inform(message):
 async def command_start(message):
     await message.answer(f"Привет {message.from_user.username}! Я бот помогающий твоему здоровью. Выберите, что Вас интересует.", reply_markup=kb)
 
+@dp.message_handler(text="Рассчитать")
+async def show_calculate_options(message: types.Message):
+    await message.answer("Выберите действие:", reply_markup=kb2)
+
 @dp.callback_query_handler(text='formulas')
 async def get_formulas(call):
     await call.message.answer('10 x вес (кг) + 6,25 x рост (см) – 5 x возраст (г) – 161')
-    await call.answer()
 
 @dp.callback_query_handler(text='calories')
 async def set_age(call):
@@ -89,6 +92,9 @@ async def send_confirm_message(call):
     await call.message.answer('Вы успешно приобрели продукт!')
     await call.answer()
 
+@dp.message_handler()
+async def all_messages(message):
+    await message.answer("Введите команду /start, чтобы запустить бота")
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
